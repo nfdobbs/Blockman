@@ -4,7 +4,8 @@
   "package": "net.dobbs.dobbs_first_mod.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "PlayerMoveMixin"
+    "PlayerMoveMixin",
+    "PlayerTileMixin"
   ],
   "client": [
     "ExampleMixin"
