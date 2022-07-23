@@ -10,6 +10,8 @@ import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 
 @Mixin(PlayerEntity.class)
@@ -28,12 +30,13 @@ public class PlayerTileMixin implements PlayerAccess {
 
     public void loadTileMap(String path)
     {
-        //Loading happens
-        PlayerEntity player = (PlayerEntity)(Object) this;
-
-
-
-
+        playersTiles.loadTiles(path);
+    }
+    public byte[] serializeTileMap() throws IOException {
+        return playersTiles.serializeTileMap();
     }
 
+    public void deSerializeTileMap(byte[] bytes) throws IOException, ClassNotFoundException {
+        playersTiles.deSerializeTileMap(bytes);
+    }
 }
