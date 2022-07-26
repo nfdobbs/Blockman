@@ -1,5 +1,6 @@
 package net.dobbs.dobbs_first_mod.tiles;
 
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -17,6 +18,48 @@ public class TileManager {
 
     public TileManager() {
 
+    }
+
+    public static Vec3d firstBlock(int tileNum, String chunks)
+    {
+        //Get Local Coordinates
+        double x = 0;
+        double y = 0;
+        double z = 0;
+
+        y = java.lang.Math.floor(tileNum / 16);
+        x = java.lang.Math.floor((tileNum - y*16)/4);
+        z = (tileNum - y*16 - x*4)*4;
+
+        y = y * 4;
+        x = x * 4;
+
+        //Transform to Global Coordinates
+        y = y - 64;
+
+        String[] splitChunks = chunks.split(",",2);
+
+        splitChunks[0] = splitChunks[0].substring(1);
+        splitChunks[1] = splitChunks[1].substring(0, splitChunks[1].length()-1);
+
+        int xChunkMultiplier = Integer.parseInt(splitChunks[0]) * 16;
+        int zChunkMultiplier = Integer.parseInt(splitChunks[1]) * 16;
+
+        x = x + xChunkMultiplier;
+        z = z + zChunkMultiplier;
+
+        //Dealing with -0 coord
+        if(x < 0)
+        {
+            x = x + 1;
+        }
+
+        if(z < 0)
+        {
+            z = z + 1;
+        }
+
+        return new Vec3d(x,y,z);
     }
 
     public boolean isOwned(double x, double y, double z) {
