@@ -15,7 +15,6 @@ public class TileManager {
 
     //Checks if the tile is in the hashMap
     //If tile is in the hashmap it implies the player owns it
-
     public TileManager() {
 
     }

@@ -3,6 +3,9 @@ package net.dobbs.dobbs_first_mod;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.channel.ChannelHandler;
+import net.dobbs.dobbs_first_mod.events.ClientEvents;
+import net.dobbs.dobbs_first_mod.events.ServerEvents;
+import net.dobbs.dobbs_first_mod.events.TileRenderer;
 import net.dobbs.dobbs_first_mod.item.ModItems;
 import net.dobbs.dobbs_first_mod.tiles.TileManager;
 import net.dobbs.dobbs_first_mod.util.PlayerAccess;
@@ -57,11 +60,15 @@ public class TutorialMod implements ModInitializer {
 
 	public static final Identifier blockManIdentifier = new Identifier("blockman");
 
-	public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/exp_tile_wall.png");
+	//public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/exp_tile_wall.png");
 	@Override
 	public void onInitialize() {
 
 		ModItems.registerModItems();
+
+		TileRenderer.init();
+		ServerEvents.init();
+		ClientEvents.init();
 
 		//Rendering Variables
 		var positionString = new Object(){String s;};
@@ -126,208 +133,5 @@ public class TutorialMod implements ModInitializer {
 
 			return collisionVector;
 		});
-
-		//Server Connect Event
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			String path = server.getSavePath(WorldSavePath.PLAYERDATA).toString();
-			String uniqueID = handler.player.getUuidAsString();
-
-			path += "\\" + uniqueID + ".blockman";
-
-			LOGGER.info(path);
-			byte [] serializedTileMap;
-			File file = new File(path);
-
-			//Has Player Data
-			if(file.isFile() == true)
-			{
-				LOGGER.info(handler.player.getEntityName() + " has data");
-				//Load data to into tileManager
-
-				try {
-					serializedTileMap = Files.readAllBytes(Path.of(path));
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-
-				try {
-					((PlayerAccess)handler.player).deSerializeTileMap(serializedTileMap);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-
-			}
-			//New Player Connecting
-			else
-			{
-				LOGGER.info(handler.player.getEntityName() + " is connecting for the first time!");
-
-				//Add first tile to tileManager
-				((PlayerAccess)handler.player).addTile(handler.player.getX(), handler.player.getY(), handler.player.getZ());
-				LOGGER.info("Added first tile for " + handler.player.getEntityName());
-
-				try {
-					serializedTileMap = ((PlayerAccess)handler.player).serializeTileMap();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				};
-			}
-
-			//Send HashMap to Client
-			PacketByteBuf buffer = PacketByteBufs.create();
-			buffer.writeByteArray(serializedTileMap);
-			ServerPlayNetworking.send((ServerPlayerEntity) handler.player, blockManIdentifier,buffer);
-
-			LOGGER.info("Sent Packet: " + serializedTileMap.toString());
-		});
-
-		//Server Disconnect Event
-		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-			LOGGER.info(handler.player.getEntityName() + " has disconnected");
-
-			String path = server.getSavePath(WorldSavePath.PLAYERDATA).toString();
-			String uniqueID = handler.player.getUuidAsString();
-
-			path +=  "\\" + uniqueID + ".blockman";
-
-			byte[] serializedTileMap;
-			try {
-				serializedTileMap = ((PlayerAccess)handler.player).serializeTileMap();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			};
-
-			try {
-				Files.write(Path.of(path), serializedTileMap);
-				LOGGER.info("Wrote data file to " + Path.of(path).toString());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-
-		//Client Packet Received Event
-		ClientPlayNetworking.registerGlobalReceiver(blockManIdentifier,(client, handler, buf, responseSender) -> {
-			byte[] receivedBytes = buf.readByteArray();
-			LOGGER.info("Received Packet: " + receivedBytes.toString());
-
-			client.execute(() -> {
-				try {
-					((PlayerAccess)client.player).deSerializeTileMap(receivedBytes);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				} catch (ClassNotFoundException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		});
-
-		//World Rendering
-		WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
-
-			ArrayList<Integer> holder;
-			String key;
-			ClientPlayerEntity player = MinecraftClient.getInstance().player;
-			int renderDist = (int)context.gameRenderer().getViewDistance()/16;
-
-			int chunkXStart = (int)java.lang.Math.floor(context.camera().getPos().x/16);
-			int chunkZStart = (int)java.lang.Math.floor(context.camera().getPos().z/16);
-
-			chunkXStart = chunkXStart - renderDist + 1;
-			chunkZStart = chunkZStart - renderDist + 1;
-
-			int chunkLimit = (renderDist * 2) - 1;
-
-			RenderSystem.disableCull();
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-			RenderSystem.enableDepthTest();
-			RenderSystem.enableTexture();
-			RenderSystem.enableBlend();
-
-			BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-			for (int x = 0; x < chunkLimit; x++)
-			{
-				for (int z = 0; z < chunkLimit; z++) {
-					if (((PlayerAccess) player).containsOwned(chunkXStart+x, chunkZStart+z) == true) {
-						holder = ((PlayerAccess) player).getTilesInChunk(chunkXStart + x, chunkZStart+z);
-						//System.out.println("Found");
-
-						key = "(" + (chunkXStart+x) + "," + (chunkZStart+z) + ")";
-
-						for(Integer tileNum : holder)
-						{
-							renderTile(context, bufferBuilder, tileNum, key);
-						}
-
-					}
-				}
-			}
-
-
-
-			renderTile(context, bufferBuilder, 0, "(0,0)");
-
-			Tessellator.getInstance().draw();
-		});
-
 	}
-
-	public static void renderTile(WorldRenderContext context, BufferBuilder bufferBuilder, int tileNum, String chunkCoords)
-	{
-		float offset = -0.0001f;
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-
-		MatrixStack stack = context.matrixStack();
-		Matrix4f posMatrix = stack.peek().getPositionMatrix();
-
-		Vec3d worldLocation = TileManager.firstBlock(tileNum, chunkCoords).subtract(context.camera().getPos());
-
-		RenderSystem.setShaderTexture(0, tileWallTexture);
-
-		//North Wall Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y, (float)worldLocation.z - offset).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4, (float)worldLocation.z - offset).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4, (float)worldLocation.z - offset).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y, (float)worldLocation.z - offset).texture(1,1).next();
-
-		//South Wall Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y, (float)worldLocation.z+4 + offset).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4, (float)worldLocation.z+4 + offset).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4, (float)worldLocation.z+4 + offset).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y, (float)worldLocation.z+4 + offset).texture(1,1).next();
-
-		//East Wall Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y, (float)worldLocation.z).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y+4, (float)worldLocation.z).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y+4, (float)worldLocation.z+4).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y, (float)worldLocation.z+4).texture(1,1).next();
-
-		//West Wall Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y, (float)worldLocation.z+4).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y+4, (float)worldLocation.z+4).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y+4, (float)worldLocation.z).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y, (float)worldLocation.z).texture(1,1).next();
-
-		//Ceiling Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
-
-		//Floor Code
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0,1).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0, 0).next();
-
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z+4).texture(1,0).next();
-		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
-	}
-
 }
