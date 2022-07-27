@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 @Mixin(PlayerEntity.class)
 public class PlayerTileMixin implements PlayerAccess {
@@ -20,7 +21,7 @@ public class PlayerTileMixin implements PlayerAccess {
     @Override
     public boolean doesPlayerOwn(double x, double y, double z)
     {
-        return playersTiles.isOwned(x, y, z);
+        return playersTiles.isTileOwned(x, y, z);
     }
 
     public void addTile(double x, double y, double z)
@@ -38,5 +39,15 @@ public class PlayerTileMixin implements PlayerAccess {
 
     public void deSerializeTileMap(byte[] bytes) throws IOException, ClassNotFoundException {
         playersTiles.deSerializeTileMap(bytes);
+    }
+
+    public boolean containsOwned(int chunkX, int chunkZ)
+    {
+        return playersTiles.containsOwned(chunkX, chunkZ);
+    }
+
+    public ArrayList<Integer> getTilesInChunk(int chunkX, int chunkY)
+    {
+        return playersTiles.getTilesInChunk(chunkX, chunkY);
     }
 }

@@ -20,6 +20,16 @@ public class TileManager {
 
     }
 
+    public ArrayList<Integer> getTilesInChunk(int chunkX, int chunkZ)
+    {
+        if(!containsOwned(chunkX, chunkZ))
+        {
+            return null;
+        }
+
+        return tileMap.get("(" + chunkX + "," + chunkZ + ")");
+    }
+
     public static Vec3d firstBlock(int tileNum, String chunks)
     {
         //Get Local Coordinates
@@ -62,7 +72,25 @@ public class TileManager {
         return new Vec3d(x,y,z);
     }
 
-    public boolean isOwned(double x, double y, double z) {
+    public boolean containsOwned(int chunkX, int chunkZ)
+    {
+        String key = "(" + chunkX + "," + chunkZ + ")";
+
+        if(tileMap == null)
+        {
+            return false;
+        }
+
+        if(tileMap.containsKey(key) == true)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean isTileOwned(double x, double y, double z) {
         int tileNum;
         if (tileMap == null) {
             return false;

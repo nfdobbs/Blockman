@@ -46,6 +46,7 @@ import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class TutorialMod implements ModInitializer {
 	//test comment
@@ -56,7 +57,7 @@ public class TutorialMod implements ModInitializer {
 
 	public static final Identifier blockManIdentifier = new Identifier("blockman");
 
-	public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/tile_wall3.png");
+	public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/exp_tile_wall.png");
 	@Override
 	public void onInitialize() {
 
@@ -79,7 +80,6 @@ public class TutorialMod implements ModInitializer {
 			renderer.draw(matrixStack, "Owned?: ", 5, 360, 0xffffff);
 			renderer.draw(matrixStack, ownedString.s, 47, 360, ownedString.color);
 			renderer.draw(matrixStack, predictString.s, 5, 370, 0xffffff);
-
 		});
 
 		//Movement
@@ -224,55 +224,51 @@ public class TutorialMod implements ModInitializer {
 		});
 
 		//World Rendering
-		WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+		WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
+
+			ArrayList<Integer> holder;
+			String key;
+			ClientPlayerEntity player = MinecraftClient.getInstance().player;
+			int renderDist = (int)context.gameRenderer().getViewDistance()/16;
+
+			int chunkXStart = (int)java.lang.Math.floor(context.camera().getPos().x/16);
+			int chunkZStart = (int)java.lang.Math.floor(context.camera().getPos().z/16);
+
+			chunkXStart = chunkXStart - renderDist + 1;
+			chunkZStart = chunkZStart - renderDist + 1;
+
+			int chunkLimit = (renderDist * 2) - 1;
 
 			RenderSystem.disableCull();
 			RenderSystem.setShader(GameRenderer::getPositionTexShader);
 			RenderSystem.enableDepthTest();
 			RenderSystem.enableTexture();
 			RenderSystem.enableBlend();
-
-			//RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ZERO);
-
-			//RenderSystem.polygonOffset(-3.0F, -3.0F);
-			//RenderSystem.enablePolygonOffset();
 
 			BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
 			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+			for (int x = 0; x < chunkLimit; x++)
+			{
+				for (int z = 0; z < chunkLimit; z++) {
+					if (((PlayerAccess) player).containsOwned(chunkXStart+x, chunkZStart+z) == true) {
+						holder = ((PlayerAccess) player).getTilesInChunk(chunkXStart + x, chunkZStart+z);
+						//System.out.println("Found");
+
+						key = "(" + (chunkXStart+x) + "," + (chunkZStart+z) + ")";
+
+						for(Integer tileNum : holder)
+						{
+							renderTile(context, bufferBuilder, tileNum, key);
+						}
+
+					}
+				}
+			}
+
+
+
 			renderTile(context, bufferBuilder, 0, "(0,0)");
-			//renderTile(context, bufferBuilder,16, "(0,0)");
-
-			/*ClientPlayerEntity player = MinecraftClient.getInstance().player;
-
-			RenderSystem.disableCull();
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-			RenderSystem.enableDepthTest();
-			RenderSystem.enableTexture();
-			RenderSystem.enableBlend();
-
-			MatrixStack stack = context.matrixStack();
-			Matrix4f posMatrix = stack.peek().getPositionMatrix();
-
-			Vec3d worldLocation = new Vec3d(0, -63, 0).subtract(context.camera().getPos());
-
-
-
-
-			RenderSystem.setShaderTexture(0, tileWallTexture);
-			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-
-			//North Code for Future
-			bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y, (float)worldLocation.z).texture(0,1).next();
-			bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4, (float)worldLocation.z).texture(0, 0).next();
-
-			bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4, (float)worldLocation.z).texture(1,0).next();
-			bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y, (float)worldLocation.z).texture(1,1).next();
-
-
-
-			Tessellator.getInstance().draw();
-
-			RenderSystem.disableDepthTest(); */
 
 			Tessellator.getInstance().draw();
 		});
@@ -318,6 +314,20 @@ public class TutorialMod implements ModInitializer {
 
 		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y+4, (float)worldLocation.z).texture(1,0).next();
 		bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y, (float)worldLocation.z).texture(1,1).next();
+
+		//Ceiling Code
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0,1).next();
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0, 0).next();
+
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4).texture(1,0).next();
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
+
+		//Floor Code
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0,1).next();
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0, 0).next();
+
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z+4).texture(1,0).next();
+		bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
 	}
 
 }
