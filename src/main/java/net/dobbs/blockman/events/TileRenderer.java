@@ -1,8 +1,8 @@
-package net.dobbs.dobbs_first_mod.events;
+package net.dobbs.blockman.events;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.dobbs.dobbs_first_mod.tiles.TileManager;
-import net.dobbs.dobbs_first_mod.util.PlayerAccess;
+import net.dobbs.blockman.tiles.TileManager;
+import net.dobbs.blockman.util.PlayerAccess;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
@@ -16,7 +16,7 @@ import net.minecraft.util.math.Vec3d;
 import java.util.ArrayList;
 
 public class TileRenderer {
-    public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/exp_tile_wall.png");
+    public static final Identifier tileWallTexture = new Identifier("blockman","textures/exp_tile_wall.png");
 
     public static void init()
     {
@@ -54,12 +54,13 @@ public class TileRenderer {
             BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
             bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
+
+            //Loops through chunks within render distance for any with tiles
             for (int x = 0; x < chunkLimit; x++)
             {
                 for (int z = 0; z < chunkLimit; z++) {
                     if (((PlayerAccess) player).containsOwned(chunkXStart+x, chunkZStart+z) == true) {
                         holder = ((PlayerAccess) player).getTilesInChunk(chunkXStart + x, chunkZStart+z);
-                        //System.out.println("Found");
 
                         key = "(" + (chunkXStart+x) + "," + (chunkZStart+z) + ")";
 
@@ -70,9 +71,7 @@ public class TileRenderer {
 
                             if(tilesY >= minRenderedY && tilesY <= maxRenderedY)
                                 renderTile(context, bufferBuilder, tileNum, key);
-
                         }
-
                     }
                 }
             }

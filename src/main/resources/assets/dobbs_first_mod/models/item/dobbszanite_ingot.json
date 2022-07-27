@@ -1,6 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "dobbs_first_mod:item/dobbszanite_ingot"
-  }
-}

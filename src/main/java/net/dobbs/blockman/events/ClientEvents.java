@@ -1,16 +1,16 @@
-package net.dobbs.dobbs_first_mod.events;
+package net.dobbs.blockman.events;
 
-import net.dobbs.dobbs_first_mod.util.PlayerAccess;
+import net.dobbs.blockman.util.PlayerAccess;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-import static net.dobbs.dobbs_first_mod.events.ServerEvents.blockManIdentifier;
+import static net.dobbs.blockman.events.ServerEvents.blockManIdentifier;
 
 public class ClientEvents {
-    public static final String MOD_ID = "dobbs_first_mod";
+    public static final String MOD_ID = "blockman";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static void init()

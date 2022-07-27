@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "dobbs_first_mod",
+  "id": "blockman",
   "version": "${version}",
 
   "name": "Dobbs' First Mod",
@@ -19,11 +19,11 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.dobbs.dobbs_first_mod.TutorialMod"
+      "net.dobbs.blockman.Blockman"
     ]
   },
   "mixins": [
-    "dobbs_first_mod.mixins.json"
+    "blockman.mixins.json"
   ],
 
   "depends": {

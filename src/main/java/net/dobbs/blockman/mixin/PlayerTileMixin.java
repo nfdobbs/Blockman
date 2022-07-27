@@ -1,18 +1,11 @@
-package net.dobbs.dobbs_first_mod.mixin;
+package net.dobbs.blockman.mixin;
 
-import net.dobbs.dobbs_first_mod.tiles.TileManager;
-import net.dobbs.dobbs_first_mod.util.PlayerAccess;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.Session;
+import net.dobbs.blockman.tiles.TileManager;
+import net.dobbs.blockman.util.PlayerAccess;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 @Mixin(PlayerEntity.class)

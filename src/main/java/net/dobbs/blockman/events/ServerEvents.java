@@ -1,6 +1,6 @@
-package net.dobbs.dobbs_first_mod.events;
+package net.dobbs.blockman.events;
 
-import net.dobbs.dobbs_first_mod.util.PlayerAccess;
+import net.dobbs.blockman.util.PlayerAccess;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ServerEvents {
-    public static final String MOD_ID = "dobbs_first_mod";
+    public static final String MOD_ID = "blockman";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Identifier blockManIdentifier = new Identifier("blockman");
 

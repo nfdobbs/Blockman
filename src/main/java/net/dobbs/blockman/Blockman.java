@@ -1,59 +1,27 @@
-package net.dobbs.dobbs_first_mod;
+package net.dobbs.blockman;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import io.netty.channel.ChannelHandler;
-import net.dobbs.dobbs_first_mod.events.ClientEvents;
-import net.dobbs.dobbs_first_mod.events.ServerEvents;
-import net.dobbs.dobbs_first_mod.events.TileRenderer;
-import net.dobbs.dobbs_first_mod.item.ModItems;
-import net.dobbs.dobbs_first_mod.tiles.TileManager;
-import net.dobbs.dobbs_first_mod.util.PlayerAccess;
-import net.dobbs.dobbs_first_mod.util.PlayerMoveCallback;
+import net.dobbs.blockman.events.ClientEvents;
+import net.dobbs.blockman.events.ServerEvents;
+import net.dobbs.blockman.events.TileRenderer;
+import net.dobbs.blockman.item.ModItems;
+import net.dobbs.blockman.tiles.TileManager;
+import net.dobbs.blockman.util.PlayerAccess;
+import net.dobbs.blockman.util.PlayerMoveCallback;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.debug.DebugRenderer;
-import net.minecraft.client.render.debug.GameEventDebugRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
-public class TutorialMod implements ModInitializer {
+public class Blockman implements ModInitializer {
 	//test comment
-	public static final String MOD_ID = "dobbs_first_mod";
+	public static final String MOD_ID = "blockman";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	private static final DecimalFormat rounder = new DecimalFormat("0.00");

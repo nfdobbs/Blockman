@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "dobbs_first_mod:item/raw_dobbszanite"
+    "layer0": "blockman:item/raw_dobbszanite"
   }
 }

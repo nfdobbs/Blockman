@@ -1,4 +1,4 @@
-package net.dobbs.dobbs_first_mod.util;
+package net.dobbs.blockman.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
