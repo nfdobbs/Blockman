@@ -24,8 +24,18 @@ public class TileRenderer {
 
             ArrayList<Integer> holder;
             String key;
+            double tilesY = 0;
+            double camsY = context.camera().getPos().y;
+
+            int renderDist = (int)context.gameRenderer().getViewDistance();
+
+
+            double maxRenderedY = camsY + renderDist;
+            double minRenderedY = camsY - renderDist;
+
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            int renderDist = (int)context.gameRenderer().getViewDistance()/16;
+
+            renderDist = renderDist/16;
 
             int chunkXStart = (int)java.lang.Math.floor(context.camera().getPos().x/16);
             int chunkZStart = (int)java.lang.Math.floor(context.camera().getPos().z/16);
@@ -55,17 +65,17 @@ public class TileRenderer {
 
                         for(Integer tileNum : holder)
                         {
-                            renderTile(context, bufferBuilder, tileNum, key);
+                            tilesY = java.lang.Math.floor(tileNum / 16)*4;
+                            tilesY = tilesY - 64;
+
+                            if(tilesY >= minRenderedY && tilesY <= maxRenderedY)
+                                renderTile(context, bufferBuilder, tileNum, key);
+
                         }
 
                     }
                 }
             }
-
-
-
-            renderTile(context, bufferBuilder, 0, "(0,0)");
-
             Tessellator.getInstance().draw();
         });
     }
