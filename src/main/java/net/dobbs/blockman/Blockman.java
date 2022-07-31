@@ -11,7 +11,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.slf4j.Logger;
@@ -20,15 +20,10 @@ import org.slf4j.LoggerFactory;
 import java.text.DecimalFormat;
 
 public class Blockman implements ModInitializer {
-	//test comment
 	public static final String MOD_ID = "blockman";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
 	private static final DecimalFormat rounder = new DecimalFormat("0.00");
 
-	public static final Identifier blockManIdentifier = new Identifier("blockman");
-
-	//public static final Identifier tileWallTexture = new Identifier("dobbs_first_mod","textures/exp_tile_wall.png");
 	@Override
 	public void onInitialize() {
 
@@ -60,12 +55,15 @@ public class Blockman implements ModInitializer {
 		//Movement
 		PlayerMoveCallback.EVENT.register((player, collisionVector) -> {
 			World world = player.getWorld();
-			Vec3d returnVector = collisionVector;
+
+
 
 			double regionX, regionZ = 0;
 			double chunkX, chunkZ = 0;
 
 			if(world.isClient != true) {
+
+				//System.out.println(((PlayerAccess)player).doesPlayerOwn(player.getX(), player.getY(), player.getZ()));
 			}
 
 			if(world.isClient == true){
@@ -77,9 +75,7 @@ public class Blockman implements ModInitializer {
 				tileNum = TileManager.getTileNumber(player.getPos().x, player.getPos().y, player.getPos().z);
 				tileString.s = "Tile: " + tileNum;
 
-				predictString.s = "Predicted: " + TileManager.firstBlock(tileNum, chunk);
-
-
+				predictString.s = "Collision: " + TileManager.firstBlock(TileManager.getTileNumber(player.getPos().x, player.getPos().y, player.getPos().z), TileManager.makeStringKey(player.getPos().x, player.getPos().z));
 
 				if(((PlayerAccess)player).doesPlayerOwn(player.getX(), player.getY(), player.getZ()) == true)
 				{
@@ -91,15 +87,67 @@ public class Blockman implements ModInitializer {
 					ownedString.s = "False";
 					ownedString.color = 0xff0000;
 				}
-
-				//((PlayerAccess)player).addTile(0,0,0);
 			}
 
 			//Currently Just Stopping the Player
-			//Hard Math Ahead
+			//Complex Math Ahead
+
+			Vec3d playerPosition = player.getPos();
+			Vec3d returnVector = collisionVector;
+			Box playerBox = player.getBoundingBox();
+
+			int tileNum = TileManager.getTileNumber(playerPosition.x, playerPosition.y, playerPosition.z);
+			String chunk = TileManager.makeStringKey(playerPosition.x, playerPosition.z);
+
+			Vec3d lowestTileBlock = TileManager.firstBlock(tileNum, chunk);
+
+			double yMovement = collisionVector.y;
+			double xMovement = 0.0;
+			double zMovement = 0.0;
 
 
-			return collisionVector;
+			((PlayerAccess)player).doesPlayerOwn(playerPosition.x, (playerBox.minY + collisionVector.y) , playerPosition.z);
+
+			if(((PlayerAccess)player).doesPlayerOwn(playerPosition.x, playerPosition.y, playerPosition.z) == true)
+			{
+				//Checking Y
+				if (collisionVector.y < 0)    //Falling
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, (playerBox.minY + collisionVector.y), playerPosition.z))
+					{
+						yMovement = lowestTileBlock.y - playerPosition.y;
+
+						if (Math.abs(yMovement) < 1.0E-7) {
+							yMovement = 0.0;
+						}
+					}
+				}
+
+				else if (collisionVector.y > 0) //Jumping
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, (playerBox.maxY + collisionVector.y), playerPosition.z))
+					{
+						yMovement = (lowestTileBlock.y+4) - playerBox.maxY;
+
+						if (Math.abs(yMovement) < 1.0E-7) {
+							yMovement = 0.0;
+						}
+					}
+				}
+
+				//+X Heading East
+				//-X Heading West
+				//+Z Heading South
+				//-Z Heading North
+
+
+				//System.out.println(playerPosition.y + " " + yMovement);
+
+				returnVector = new Vec3d(collisionVector.x, yMovement, collisionVector.z);
+
+			}
+
+			return returnVector;
 		});
 	}
 }

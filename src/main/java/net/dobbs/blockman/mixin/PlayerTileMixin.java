@@ -22,10 +22,11 @@ public class PlayerTileMixin implements PlayerAccess {
         playersTiles.addTile(x, y, z);
     }
 
-    public void loadTileMap(String path)
+    public void addTile(int chunkX, int chunkZ, int tileNum)
     {
-        playersTiles.loadTiles(path);
+        playersTiles.addTile(chunkX, chunkZ, tileNum);
     }
+
     public byte[] serializeTileMap() throws IOException {
         return playersTiles.serializeTileMap();
     }

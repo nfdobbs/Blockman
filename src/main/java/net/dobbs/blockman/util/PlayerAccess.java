@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public interface PlayerAccess {
     boolean doesPlayerOwn(double x, double y, double z);
     void addTile(double x, double y, double z);
-    void loadTileMap(String path);
+    void addTile(int chunkX, int chunkZ, int tileNum);
     byte[] serializeTileMap() throws IOException;
     void deSerializeTileMap(byte [] bytes) throws IOException, ClassNotFoundException;
     boolean containsOwned(int chunkX, int chunkZ);

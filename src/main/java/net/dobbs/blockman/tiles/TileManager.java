@@ -56,17 +56,6 @@ public class TileManager {
         x = x + xChunkMultiplier;
         z = z + zChunkMultiplier;
 
-        //Dealing with -0 coord
-        if(x < 0)
-        {
-            x = x + 1;
-        }
-
-        if(z < 0)
-        {
-            z = z + 1;
-        }
-
         return new Vec3d(x,y,z);
     }
 
@@ -134,6 +123,25 @@ public class TileManager {
             tileMap.put(makeStringKey(x, z), temp);
 
             //System.out.println("Added Tile at " + makeStringKey(x, z) + " Tile Number: " + getTileNumber(x, y, z));
+        }
+    }
+
+    public void addTile(int chunkX, int chunkZ, int tileNum)
+    {
+        String key = "(" + chunkX + "," + chunkZ + ")";
+        if(tileMap == null){
+            return;
+        }
+
+        else if(tileMap.containsKey(key))
+        {
+            tileMap.get(key).add(tileNum);
+        }
+        else
+        {
+            ArrayList<Integer> temp = new ArrayList<>();
+            temp.add(tileNum);
+            tileMap.put(key, temp);
         }
     }
 

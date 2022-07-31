@@ -1,6 +1,7 @@
 package net.dobbs.blockman.events;
 
 import net.dobbs.blockman.util.PlayerAccess;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -101,5 +102,31 @@ public class ServerEvents {
                 throw new RuntimeException(e);
             }
         });
+
+        //Server Death Event (Hot Fix)
+        {
+            ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, server) -> {
+
+                byte[] oldTileMap = null;
+
+                try {
+                    oldTileMap = ((PlayerAccess)oldPlayer).serializeTileMap();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                try {
+                    ((PlayerAccess)newPlayer).deSerializeTileMap(oldTileMap);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
+                PacketByteBuf buffer = PacketByteBufs.create();
+                buffer.writeByteArray(oldTileMap);
+                ServerPlayNetworking.send((ServerPlayerEntity) newPlayer, blockManIdentifier,buffer);
+            });
+        }
     }
 }

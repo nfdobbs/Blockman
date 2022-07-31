@@ -54,7 +54,6 @@ public class TileRenderer {
             BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
             bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
-
             //Loops through chunks within render distance for any with tiles
             for (int x = 0; x < chunkLimit; x++)
             {
