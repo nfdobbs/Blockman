@@ -20,7 +20,7 @@ public class TileRenderer {
 
     public static void init()
     {
-        WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
 
             ArrayList<Integer> holder;
             String key;

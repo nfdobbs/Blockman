@@ -31,9 +31,9 @@ public class TileManager {
     public static Vec3d firstBlock(int tileNum, String chunks)
     {
         //Get Local Coordinates
-        double x = 0;
-        double y = 0;
-        double z = 0;
+        double x;
+        double y;
+        double z;
 
         y = java.lang.Math.floor(tileNum / 16);
         x = java.lang.Math.floor((tileNum - y*16)/4);
@@ -68,11 +68,12 @@ public class TileManager {
             return false;
         }
 
-        if(tileMap.containsKey(key) == true)
+        else if(tileMap.containsKey(key))
         {
             return true;
         }
-        else {
+        else
+        {
             return false;
         }
     }
@@ -83,9 +84,9 @@ public class TileManager {
             return false;
         }
 
-        if (tileMap.containsKey(makeStringKey(x, z)) == true) {
+        if (tileMap.containsKey(makeStringKey(x, z))) {
             tileNum = getTileNumber(x, y, z);
-            if (tileMap.get(makeStringKey(x, z)).contains(tileNum) == true) {
+            if (tileMap.get(makeStringKey(x, z)).contains(tileNum)) {
                 return true;
             } else {
                 return false;
@@ -107,8 +108,7 @@ public class TileManager {
         y = y + 64;
         z = (z % 16 + 16) % 16;
 
-        int tileNumber = (int) (java.lang.Math.floor(y / 4) * 16 + java.lang.Math.floor(x / 4) * 4 + java.lang.Math.floor(z / 4));
-        return tileNumber;
+        return (int) (Math.floor(y / 4) * 16 + Math.floor(x / 4) * 4 + Math.floor(z / 4));
     }
 
     public void addTile(double x, double y, double z) {

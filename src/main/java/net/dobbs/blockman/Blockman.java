@@ -57,16 +57,12 @@ public class Blockman implements ModInitializer {
 			World world = player.getWorld();
 
 
-
-			double regionX, regionZ = 0;
-			double chunkX, chunkZ = 0;
-
-			if(world.isClient != true) {
+			if(!world.isClient) {
 
 				//System.out.println(((PlayerAccess)player).doesPlayerOwn(player.getX(), player.getY(), player.getZ()));
 			}
 
-			if(world.isClient == true){
+			if(world.isClient){
 				int tileNum;
 				String chunk;
 				positionString.s = "Position: " + rounder.format(player.getPos().x) + ", " + rounder.format(player.getPos().y) + ", " + rounder.format(player.getPos().z);
@@ -75,9 +71,9 @@ public class Blockman implements ModInitializer {
 				tileNum = TileManager.getTileNumber(player.getPos().x, player.getPos().y, player.getPos().z);
 				tileString.s = "Tile: " + tileNum;
 
-				predictString.s = "Collision: " + TileManager.firstBlock(TileManager.getTileNumber(player.getPos().x, player.getPos().y, player.getPos().z), TileManager.makeStringKey(player.getPos().x, player.getPos().z));
+				predictString.s = "Collision: " + collisionVector;
 
-				if(((PlayerAccess)player).doesPlayerOwn(player.getX(), player.getY(), player.getZ()) == true)
+				if(((PlayerAccess)player).doesPlayerOwn(player.getX(), player.getY(), player.getZ()))
 				{
 					ownedString.s = "True";
 					ownedString.color = 0x00ff00;
@@ -102,49 +98,63 @@ public class Blockman implements ModInitializer {
 			Vec3d lowestTileBlock = TileManager.firstBlock(tileNum, chunk);
 
 			double yMovement = collisionVector.y;
-			double xMovement = 0.0;
-			double zMovement = 0.0;
+			double xMovement = collisionVector.x;
+			double zMovement = collisionVector.z;
 
 
 			((PlayerAccess)player).doesPlayerOwn(playerPosition.x, (playerBox.minY + collisionVector.y) , playerPosition.z);
 
-			if(((PlayerAccess)player).doesPlayerOwn(playerPosition.x, playerPosition.y, playerPosition.z) == true)
+			if(((PlayerAccess)player).doesPlayerOwn(playerPosition.x, playerPosition.y, playerPosition.z))
 			{
 				//Checking Y
-				if (collisionVector.y < 0)    //Falling
+				if (collisionVector.y < 0) //-Y Falling
 				{
 					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, (playerBox.minY + collisionVector.y), playerPosition.z))
-					{
 						yMovement = lowestTileBlock.y - playerPosition.y;
-
-						if (Math.abs(yMovement) < 1.0E-7) {
-							yMovement = 0.0;
-						}
-					}
 				}
 
-				else if (collisionVector.y > 0) //Jumping
+				else if (collisionVector.y > 0) //+Y Jumping
 				{
 					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, (playerBox.maxY + collisionVector.y), playerPosition.z))
-					{
 						yMovement = (lowestTileBlock.y+4) - playerBox.maxY;
-
-						if (Math.abs(yMovement) < 1.0E-7) {
-							yMovement = 0.0;
-						}
-					}
 				}
 
-				//+X Heading East
-				//-X Heading West
-				//+Z Heading South
-				//-Z Heading North
+				if (collisionVector.x < 0) //-X Heading West
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn((playerBox.minX + collisionVector.x), playerPosition.y, playerPosition.z))
+						xMovement = (lowestTileBlock.x) - playerBox.minX;
+				}
+
+				else if (collisionVector.x > 0) // +X Heading East
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn((playerBox.maxX + collisionVector.x), playerPosition.y, playerPosition.z))
+						xMovement = (lowestTileBlock.x+4) - playerBox.maxX;
+				}
+
+				if(collisionVector.z < 0) //-Z Heading North
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, playerPosition.y, (playerBox.minZ + collisionVector.z)))
+						zMovement = lowestTileBlock.z - playerBox.minZ;
+				}
+
+				else if(collisionVector.z > 0)//+Z Heading South
+				{
+					if (!((PlayerAccess) player).doesPlayerOwn(playerPosition.x, playerPosition.y, (playerBox.maxZ + collisionVector.z)))
+						zMovement = (lowestTileBlock.z + 4) - playerBox.maxZ;
+				}
+
+				if (Math.abs(yMovement) < 1.0E-7)
+					yMovement = 0.0;
+
+				if(Math.abs(xMovement) < 1.0E-7)
+					xMovement = 0.0;
 
 
-				//System.out.println(playerPosition.y + " " + yMovement);
+				if(Math.abs(zMovement) < 1.0E-7)
+					zMovement = 0.0;
 
-				returnVector = new Vec3d(collisionVector.x, yMovement, collisionVector.z);
 
+				returnVector = new Vec3d(xMovement, yMovement, zMovement);
 			}
 
 			return returnVector;
