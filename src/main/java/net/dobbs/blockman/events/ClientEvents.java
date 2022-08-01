@@ -28,12 +28,6 @@ public class ClientEvents {
                 } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
-
-                ((PlayerAccess)client.player).addTile(0, -1, 16);
-                ((PlayerAccess)client.player).addTile(0, -1, 17);
-                ((PlayerAccess)client.player).addTile(0, -1, 20);
-                ((PlayerAccess)client.player).addTile(0, -1, 21);
-                ((PlayerAccess)client.player).addTile(0, -1, 32);
             });
         });
     }
