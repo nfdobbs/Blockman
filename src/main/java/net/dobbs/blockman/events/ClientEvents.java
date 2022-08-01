@@ -30,10 +30,11 @@ public class ClientEvents {
                 }
 
                 ((PlayerAccess)client.player).addTile(0, -1, 16);
-                ((PlayerAccess)client.player).addTile(-1, 0, 16);
+                ((PlayerAccess)client.player).addTile(0, -1, 17);
+                ((PlayerAccess)client.player).addTile(0, -1, 20);
+                ((PlayerAccess)client.player).addTile(0, -1, 21);
+                ((PlayerAccess)client.player).addTile(0, -1, 32);
             });
         });
-
-
     }
 }

@@ -26,7 +26,6 @@ public class Blockman implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-
 		ModItems.registerModItems();
 
 		TileRenderer.init();

@@ -68,14 +68,7 @@ public class TileManager {
             return false;
         }
 
-        else if(tileMap.containsKey(key))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return tileMap.containsKey(key);
     }
 
     public boolean isTileOwned(double x, double y, double z) {
@@ -91,7 +84,8 @@ public class TileManager {
             } else {
                 return false;
             }
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -130,7 +124,6 @@ public class TileManager {
     {
         String key = "(" + chunkX + "," + chunkZ + ")";
         if(tileMap == null){
-            return;
         }
 
         else if(tileMap.containsKey(key))

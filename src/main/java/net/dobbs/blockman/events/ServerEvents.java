@@ -6,7 +6,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class ServerEvents {
             File file = new File(path);
 
             //Has Player Data
-            if(file.isFile() == true)
+            if(file.isFile())
             {
                 LOGGER.info(handler.player.getEntityName() + " has data");
                 //Load data to into tileManager
@@ -48,9 +47,7 @@ public class ServerEvents {
 
                 try {
                     ((PlayerAccess)handler.player).deSerializeTileMap(serializedTileMap);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
 
@@ -68,13 +65,13 @@ public class ServerEvents {
                     serializedTileMap = ((PlayerAccess)handler.player).serializeTileMap();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
-                };
+                }
             }
 
             //Send HashMap to Client
             PacketByteBuf buffer = PacketByteBufs.create();
             buffer.writeByteArray(serializedTileMap);
-            ServerPlayNetworking.send((ServerPlayerEntity) handler.player, blockManIdentifier,buffer);
+            ServerPlayNetworking.send(handler.player, blockManIdentifier,buffer);
 
             LOGGER.info("Sent Packet: " + serializedTileMap.toString());
         });
@@ -91,9 +88,10 @@ public class ServerEvents {
             byte[] serializedTileMap;
             try {
                 serializedTileMap = ((PlayerAccess)handler.player).serializeTileMap();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e);
-            };
+            }
 
             try {
                 Files.write(Path.of(path), serializedTileMap);
@@ -107,7 +105,7 @@ public class ServerEvents {
         {
             ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, server) -> {
 
-                byte[] oldTileMap = null;
+                byte[] oldTileMap;
 
                 try {
                     oldTileMap = ((PlayerAccess)oldPlayer).serializeTileMap();
@@ -117,15 +115,13 @@ public class ServerEvents {
 
                 try {
                     ((PlayerAccess)newPlayer).deSerializeTileMap(oldTileMap);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (ClassNotFoundException e) {
+                } catch (IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
 
                 PacketByteBuf buffer = PacketByteBufs.create();
                 buffer.writeByteArray(oldTileMap);
-                ServerPlayNetworking.send((ServerPlayerEntity) newPlayer, blockManIdentifier,buffer);
+                ServerPlayNetworking.send(newPlayer, blockManIdentifier,buffer);
             });
         }
     }

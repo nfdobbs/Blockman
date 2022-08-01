@@ -81,55 +81,76 @@ public class TileRenderer {
     public static void renderTile(WorldRenderContext context, BufferBuilder bufferBuilder, int tileNum, String chunkCoords)
     {
         float offset = -0.0001f;
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+
+        PlayerAccess player = (PlayerAccess) MinecraftClient.getInstance().player;
 
         MatrixStack stack = context.matrixStack();
         Matrix4f posMatrix = stack.peek().getPositionMatrix();
 
-        Vec3d worldLocation = TileManager.firstBlock(tileNum, chunkCoords).subtract(context.camera().getPos());
+        Vec3d firstBlock = TileManager.firstBlock(tileNum, chunkCoords);
+
+        Vec3d worldLocation = firstBlock.subtract(context.camera().getPos());
 
         RenderSystem.setShaderTexture(0, tileWallTexture);
 
         //North Wall Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y, (float)worldLocation.z - offset).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4, (float)worldLocation.z - offset).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x, firstBlock.y, firstBlock.z - 1))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y, (float) worldLocation.z - offset).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y + 4, (float) worldLocation.z - offset).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4, (float)worldLocation.z - offset).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y, (float)worldLocation.z - offset).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y + 4, (float) worldLocation.z - offset).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y, (float) worldLocation.z - offset).texture(1, 1).next();
+        }
 
         //South Wall Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y, (float)worldLocation.z+4 + offset).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4, (float)worldLocation.z+4 + offset).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x, firstBlock.y, firstBlock.z + 4))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y, (float) worldLocation.z + 4 + offset).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y + 4, (float) worldLocation.z + 4 + offset).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4, (float)worldLocation.z+4 + offset).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y, (float)worldLocation.z+4 + offset).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y + 4, (float) worldLocation.z + 4 + offset).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y, (float) worldLocation.z + 4 + offset).texture(1, 1).next();
+        }
 
         //East Wall Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y, (float)worldLocation.z).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y+4, (float)worldLocation.z).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x + 4, firstBlock.y, firstBlock.z))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4 + offset, (float) worldLocation.y, (float) worldLocation.z).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4 + offset, (float) worldLocation.y + 4, (float) worldLocation.z).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y+4, (float)worldLocation.z+4).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4 + offset, (float)worldLocation.y, (float)worldLocation.z+4).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4 + offset, (float) worldLocation.y + 4, (float) worldLocation.z + 4).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4 + offset, (float) worldLocation.y, (float) worldLocation.z + 4).texture(1, 1).next();
+        }
 
         //West Wall Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y, (float)worldLocation.z+4).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y+4, (float)worldLocation.z+4).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x - 1, firstBlock.y, firstBlock.z))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x - offset, (float) worldLocation.y, (float) worldLocation.z + 4).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x - offset, (float) worldLocation.y + 4, (float) worldLocation.z + 4).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y+4, (float)worldLocation.z).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x - offset, (float)worldLocation.y, (float)worldLocation.z).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x - offset, (float) worldLocation.y + 4, (float) worldLocation.z).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x - offset, (float) worldLocation.y, (float) worldLocation.z).texture(1, 1).next();
+        }
 
         //Ceiling Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x, firstBlock.y + 4, firstBlock.z))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y + 4 + offset, (float) worldLocation.z).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y + 4 + offset, (float) worldLocation.z).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y+4 + offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y + 4 + offset, (float) worldLocation.z + 4).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y + 4 + offset, (float) worldLocation.z + 4 - offset).texture(1, 1).next();
+        }
 
         //Floor Code
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0,1).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z).texture(0, 0).next();
+        if(!player.doesPlayerOwn(firstBlock.x, firstBlock.y - 1, firstBlock.z))
+        {
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y - offset, (float) worldLocation.z).texture(0, 1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y - offset, (float) worldLocation.z).texture(0, 0).next();
 
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x+4, (float)worldLocation.y - offset, (float)worldLocation.z+4).texture(1,0).next();
-        bufferBuilder.vertex(posMatrix, (float)worldLocation.x, (float)worldLocation.y - offset, (float)worldLocation.z+4 - offset).texture(1,1).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x + 4, (float) worldLocation.y - offset, (float) worldLocation.z + 4).texture(1, 0).next();
+            bufferBuilder.vertex(posMatrix, (float) worldLocation.x, (float) worldLocation.y - offset, (float) worldLocation.z + 4 - offset).texture(1, 1).next();
+        }
     }
 }
