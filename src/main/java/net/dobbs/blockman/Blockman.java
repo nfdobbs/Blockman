@@ -2,20 +2,10 @@ package net.dobbs.blockman;
 
 import net.dobbs.blockman.events.*;
 import net.dobbs.blockman.item.ModItems;
-import net.dobbs.blockman.tiles.TileManager;
-import net.dobbs.blockman.util.PlayerAccess;
-import net.dobbs.blockman.util.PlayerMoveCallback;
+import net.dobbs.blockman.util.Config;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.DecimalFormat;
 
 public class Blockman implements ModInitializer {
 	public static final String MOD_ID = "blockman";
@@ -24,6 +14,7 @@ public class Blockman implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		ModItems.registerModItems();
+		Config.getInstance();
 		TileRenderer.init();
 		ServerEvents.init();
 		ClientEvents.init();

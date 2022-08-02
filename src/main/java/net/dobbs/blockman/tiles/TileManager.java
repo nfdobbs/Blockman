@@ -1,5 +1,6 @@
 package net.dobbs.blockman.tiles;
 
+import net.dobbs.blockman.events.HUDRenderer;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,11 +12,15 @@ public class TileManager {
 
     HashMap<String, ArrayList<Integer>> tileMap = new HashMap<String, ArrayList<Integer>>();
 
+    private int availableTiles = 0;
+
 
     //Checks if the tile is in the hashMap
     //If tile is in the hashmap it implies the player owns it
     public TileManager() {
-
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        temp.add(0);
+        tileMap.put("availableTiles", temp);
     }
 
     public ArrayList<Integer> getTilesInChunk(int chunkX, int chunkZ)
@@ -138,15 +143,10 @@ public class TileManager {
         }
     }
 
-    public void loadTiles(String path) {
-        File dataFile = new File(path);
-
-        if (dataFile.isFile()) {
-            System.out.println("Test Statement");
-        }
-    }
-
     public byte[] serializeTileMap() throws IOException {
+
+        tileMap.get("availableTiles").set(0, availableTiles);
+
         ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(byteArray);
         out.writeObject(tileMap);
@@ -159,6 +159,27 @@ public class TileManager {
         ObjectInputStream in = new ObjectInputStream(byteArray);
 
         tileMap = (HashMap<String, ArrayList<Integer>>) in.readObject();
+
+        availableTiles = tileMap.get("availableTiles").get(0);
     }
 
+    public void increaseAvailableTiles(int num)
+    {
+        availableTiles += num;
+    }
+
+    public void decreaseAvailableTiles(int num)
+    {
+        availableTiles -= num;
+    }
+
+    public void setAvailableTiles(int num)
+    {
+        availableTiles = num;
+    }
+
+    public int getAvailableTiles()
+    {
+        return availableTiles;
+    }
 }

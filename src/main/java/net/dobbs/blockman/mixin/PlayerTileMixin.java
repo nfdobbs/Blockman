@@ -44,4 +44,24 @@ public class PlayerTileMixin implements PlayerAccess {
     {
         return playersTiles.getTilesInChunk(chunkX, chunkY);
     }
+
+    public void increaseAvailableTiles(int num)
+    {
+        playersTiles.increaseAvailableTiles(num);
+    }
+
+    public void decreaseAvailableTiles(int num)
+    {
+        playersTiles.decreaseAvailableTiles(num);
+    }
+
+    public int getAvailableTiles()
+    {
+        return playersTiles.getAvailableTiles();
+    }
+
+    public void setAvailableTiles(int num)
+    {
+        playersTiles.setAvailableTiles(num);
+    }
 }

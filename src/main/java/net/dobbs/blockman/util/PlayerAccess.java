@@ -11,4 +11,10 @@ public interface PlayerAccess {
     void deSerializeTileMap(byte [] bytes) throws IOException, ClassNotFoundException;
     boolean containsOwned(int chunkX, int chunkZ);
     ArrayList<Integer> getTilesInChunk(int chunkX, int chunkZ);
+
+    void decreaseAvailableTiles(int num);
+    void increaseAvailableTiles(int num);
+    int getAvailableTiles();
+
+    void setAvailableTiles(int num);
 }

@@ -2,6 +2,8 @@ package net.dobbs.blockman.events;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.dobbs.blockman.tiles.TileManager;
+import net.dobbs.blockman.util.BlockmanColor;
+import net.dobbs.blockman.util.Config;
 import net.dobbs.blockman.util.PlayerAccess;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -13,13 +15,22 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class TileRenderer {
     public static final Identifier tileWallTexture = new Identifier("blockman","textures/exp_tile_wall.png");
 
+    private static BlockmanColor canPurchaseColor;
+    private static BlockmanColor noTilesColor;
+
     public static void init()
     {
+        Config config = Config.getInstance();
+
+        canPurchaseColor = config.getCanPurchaseWallColor();
+        noTilesColor = config.getNoTilesAvailableWallColor();
+
         WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
 
             ArrayList<Integer> holder;
@@ -46,6 +57,7 @@ public class TileRenderer {
             int chunkLimit = (renderDist * 2) - 1;
 
             RenderSystem.disableCull();
+            RenderSystem.setShaderColor(noTilesColor.getRedFloat(), noTilesColor.getGreenFloat(), noTilesColor.getBlueFloat(), noTilesColor.getAlphaFloat());
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.enableDepthTest();
             RenderSystem.enableTexture();

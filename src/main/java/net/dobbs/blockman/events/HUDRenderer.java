@@ -21,6 +21,8 @@ public final class HUDRenderer {
     public int tileOwnedColor;
     public String predictedLine = "";
 
+    public String availableTilesLine = "";
+
     private HUDRenderer()
     {
         init();
@@ -50,6 +52,7 @@ public final class HUDRenderer {
             renderer.draw(matrixStack, "Owned?: ", 5, 360, 0xffffff);
             renderer.draw(matrixStack, ownedString.s, 47, 360, tileOwnedColor);
             renderer.draw(matrixStack, predictString.s, 5, 370, 0xffffff);
+            renderer.draw(matrixStack, "Tiles Available:" + availableTilesLine, 5, 380, 0xffffff);
         });
     }
 }

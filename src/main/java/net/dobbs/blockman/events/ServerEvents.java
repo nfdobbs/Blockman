@@ -68,6 +68,8 @@ public class ServerEvents {
                 }
             }
 
+            //((PlayerAccess)handler.player).setAvailableTiles(3);
+
             //Send HashMap to Client
             PacketByteBuf buffer = PacketByteBufs.create();
             buffer.writeByteArray(serializedTileMap);

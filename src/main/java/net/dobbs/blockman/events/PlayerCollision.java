@@ -51,6 +51,9 @@ public class PlayerCollision {
                     hud.tileOwnedColor = 0xff0000;
                 }
             }
+
+            hud.availableTilesLine = " " + ((PlayerAccess)player).getAvailableTiles();
+
             ///Rendering Stuff///
 
 
